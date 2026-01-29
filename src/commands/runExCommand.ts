@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { NeovimClient, Position } from "../neovim/client";
+import { NeovimClient, CursorInfo, Position } from "../neovim/client";
 import { CommandHistory } from "../ui/commandHistory";
 import { CommandInput } from "../ui/commandInput";
 import {
@@ -39,37 +39,29 @@ export async function runExCommand(
     const document = editor.document;
     const content = document.getText().split("\n");
 
-    // Get all cursor positions
-    const cursorPositions: Position[] = editor.selections.map((sel) => ({
-      line: sel.active.line,
-      col: sel.active.character,
-    }));
+    // Build CursorInfo for each selection/cursor
+    const cursors: CursorInfo[] = editor.selections.map((sel) => {
+      const info: CursorInfo = {
+        line: sel.active.line,
+        col: sel.active.character,
+      };
 
-    // Check if there's a selection (non-empty)
-    const hasSelection = editor.selections.some((sel) => !sel.isEmpty);
-
-    let result;
-
-    if (hasSelection) {
-      // Use the first selection for the range
-      const selection = editor.selection;
-      const startLine = selection.start.line;
-      let endLine = selection.end.line;
-
-      // Adjust for selections ending at column 0 of the next line
-      if (selection.end.character === 0 && endLine > startLine) {
-        endLine = endLine - 1;
+      if (!sel.isEmpty) {
+        let endLine = sel.end.line;
+        // Adjust for selections ending at column 0 of the next line
+        if (sel.end.character === 0 && endLine > sel.start.line) {
+          endLine = endLine - 1;
+        }
+        info.selection = {
+          startLine: sel.start.line,
+          endLine,
+        };
       }
 
-      result = await neovimClient.executeWithSelection(
-        content,
-        command,
-        { startLine, endLine },
-        cursorPositions
-      );
-    } else {
-      result = await neovimClient.execute(content, command, cursorPositions);
-    }
+      return info;
+    });
+
+    const result = await neovimClient.execute(content, command, cursors);
 
     // Apply changes to the editor
     await editor.edit((editBuilder) => {
@@ -86,7 +78,6 @@ export async function runExCommand(
     const newSelections = result.cursorPositions
       .filter((pos): pos is Position => pos !== null)
       .map((pos) => {
-        // Clamp to valid positions in new document
         const line = Math.min(pos.line, editor.document.lineCount - 1);
         const maxCol = editor.document.lineAt(line).text.length;
         const col = Math.min(pos.col, maxCol);
