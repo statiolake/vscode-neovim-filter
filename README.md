@@ -1,71 +1,63 @@
-# vscode-neovim-filter README
+# vscode-neovim-filter
 
-This is the README for your extension "vscode-neovim-filter". After writing up a brief description, we recommend including the following sections.
+> Use Neovim as a powerful filter
+
+Run Neovim ex commands directly in VS Code with full compatibility.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- Run any Neovim ex command (global, substitute, delete, etc.)
+- Command history with QuickPick dropdown
+- Multi-cursor support with extmark-based position tracking
+- Selection range support (automatically adds `'<,'>` prefix)
+- Uses real Neovim for 100% compatibility
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- [Neovim](https://neovim.io) 0.9.0 or later must be installed and available in your PATH
 
-## Extension Settings
+## Usage
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. Open the Command Palette (`Cmd+Shift+P` on macOS, `Ctrl+Shift+P` on Windows/Linux)
+2. Select "Neovim Filter: Run ex command"
+3. Enter your ex command (e.g., `v/pattern/d`, `%s/foo/bar/g`)
+4. The command will be executed on the current editor
 
-For example:
+### Examples
 
-This extension contributes the following settings:
+| Command | Description |
+|---------|-------------|
+| `v/bar/d` | Delete lines NOT matching "bar" |
+| `%s/foo/bar/g` | Replace all "foo" with "bar" |
+| `s/foo/bar/g` | Replace "foo" with "bar" in current line(s) |
+| `5,10d` | Delete lines 5-10 |
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### Selection Range
 
-## Known Issues
+When you have a selection, the command automatically adds `'<,'>` prefix to operate on the selection:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+1. Select some text
+2. Run "Neovim Filter: Run ex command"
+3. Enter `s/foo/bar/g` → executes as `'<,'>s/foo/bar/g`
 
-## Release Notes
+### Multi-cursor
 
-Users appreciate release notes as you update your extension.
+With multiple cursors, the command runs at each cursor position independently:
 
-### 1.0.0
+```
+command = "workbench.action.terminal.toggleTerminal"
+command = "workbench.action.terminal.new"
+```
 
-Initial release of ...
+Place cursors on both `command =` lines and run `s/workbench/work/g` → both lines are replaced.
 
-### 1.0.1
+## Commands
 
-Fixed issue #.
+| Command | Description |
+|---------|-------------|
+| `Neovim Filter: Run ex command` | Run a Neovim ex command |
+| `Neovim Filter: Clear command history` | Clear command history |
 
-### 1.1.0
+## License
 
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+MIT
