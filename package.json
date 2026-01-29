@@ -2,7 +2,7 @@
   "name": "vscode-neovim-filter",
   "displayName": "Neovim Filter",
   "description": "Use Neovim as a powerful filter",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "statiolake",
   "license": "MIT",
   "engines": {
