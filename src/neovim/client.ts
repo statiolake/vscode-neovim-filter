@@ -47,7 +47,7 @@ export class NeovimClient {
         stdio: ["pipe", "pipe", "pipe"],
       });
 
-      nvim = await attach({ proc });
+      nvim = attach({ proc });
 
       const buffer = await nvim.buffer;
 
@@ -77,12 +77,28 @@ export class NeovimClient {
         markIds.push(id);
       }
 
-      // Execute the ex command
-      try {
-        await nvim.command(command);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        throw new ExCommandError(command, message);
+      // Execute the ex command at each cursor position
+      for (const markId of markIds) {
+        // Get current extmark position (may have shifted from prior iterations)
+        const extmarkPos = (await nvim.call("nvim_buf_get_extmark_by_id", [
+          buffer.id,
+          namespaceId,
+          markId,
+          {},
+        ])) as [number, number];
+
+        // Move cursor to this position (1-indexed line, 0-indexed col)
+        await nvim.call("nvim_win_set_cursor", [
+          0,
+          [extmarkPos[0] + 1, extmarkPos[1]],
+        ]);
+
+        try {
+          await nvim.command(command);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          throw new ExCommandError(command, message);
+        }
       }
 
       // Get the result
@@ -126,7 +142,7 @@ export class NeovimClient {
     } finally {
       if (nvim) {
         try {
-          await nvim.quit();
+          nvim.quit();
         } catch {
           // Ignore quit errors
         }
@@ -153,7 +169,7 @@ export class NeovimClient {
         stdio: ["pipe", "pipe", "pipe"],
       });
 
-      nvim = await attach({ proc });
+      nvim = attach({ proc });
 
       const buffer = await nvim.buffer;
 
@@ -237,7 +253,7 @@ export class NeovimClient {
     } finally {
       if (nvim) {
         try {
-          await nvim.quit();
+          nvim.quit();
         } catch {
           // Ignore quit errors
         }
