@@ -1,14 +1,53 @@
+# --- editor / tooling config ---
 .vscode/**
 .vscode-test/**
+.vscode-test.mjs
+**/.vscode-test.*
+.claude/**
+.github/**
+.gitignore
+.gitattributes
+.yarnrc
+.npmrc
+.editorconfig
+
+# --- sources & intermediates ---
+src/**
 out/**
 node_modules/**
-src/**
-.gitignore
-.yarnrc
-esbuild.js
-vsc-extension-quickstart.md
-**/tsconfig.json
-**/eslint.config.mjs
-**/*.map
 **/*.ts
-**/.vscode-test.*
+**/*.map
+**/*.tsbuildinfo
+
+# --- build & lint config ---
+esbuild.js
+**/tsconfig*.json
+**/eslint.config.*
+**/.eslintrc*
+**/biome.json
+**/biome.jsonc
+**/.prettierrc*
+
+# --- tests ---
+**/test/**
+**/__tests__/**
+**/*.test.*
+
+# --- misc dev files ---
+vsc-extension-quickstart.md
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# --- secrets / credentials (never ship) ---
+.env
+.env.*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.ovsx-token
+.ovsx-token
+**/*.vsix
+
+# Keep: README.md, CHANGELOG.md, LICENSE, package.json, dist/extension.js, icon
